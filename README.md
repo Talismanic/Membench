@@ -1,7 +1,10 @@
-# README
+<h1 align="center"> MemBench: Towards More Comprehensive Evaluation on the Memory of LLM-based Agents </h1>
 
-Paper link: 
-https://arxiv.org/abs/2506.21605 or https://aclanthology.org/2025.findings-acl.989/
+<div align="center">
+
+[![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b.svg?logo=arxiv)](https://arxiv.org/abs/2506.21605)
+[![License](https://img.shields.io/badge/LICENSE-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 
 Data location:
 
