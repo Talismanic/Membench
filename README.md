@@ -8,6 +8,30 @@
 [![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b.svg?logo=arxiv)](https://arxiv.org/abs/2506.21605)
 [![License](https://img.shields.io/badge/LICENSE-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
+## Installation & Setup
+
+It is recommended to use a virtual environment to manage dependencies.
+
+1.  **Create a virtual environment**:
+    ```bash
+    python -m venv .venv
+    ```
+
+2.  **Activate the virtual environment**:
+    *   On macOS/Linux:
+        ```bash
+        source .venv/bin/activate
+        ```
+    *   On Windows:
+        ```bash
+        .venv\Scripts\activate
+        ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
 
 Data location:
 
