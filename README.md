@@ -1,3 +1,6 @@
+> **Attribution:** This repository is derived from [https://github.com/import-myself/Membench](https://github.com/import-myself/Membench).
+> The goal of this mirror is to facilitate the benchmarking of other memory mechanisms on top of the original Membench paper.
+
 <h1 align="center"> MemBench: Towards More Comprehensive Evaluation on the Memory of LLM-based Agents </h1>
 
 <div align="center">
