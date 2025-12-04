@@ -1,9 +1,10 @@
 from .BaseMemory import BaseMemory
 from .memutils import get_word_num, get_truncated_context
 import json
-import faiss, torch, math, random, re
+import faiss, torch, math, random, re, logging
 from transformers import AutoModel, AutoTokenizer
 import sys
+import requests
 sys.path.append('..')
 from benchutils import create_LLM
 
@@ -1090,6 +1091,96 @@ class RetrievalMemory(BaseMemory):
     def manage(self) -> None:
         pass
     
+    def train(self, **kwargs) -> None:
+        pass
+
+
+class RoampalMemory(BaseMemory):
+    """
+    Remote retrieval memory that delegates store/retrieve to an HTTP API.
+    """
+    def __init__(self, config) -> None:
+        super().__init__(config)
+        self.endpoint = self.config['args'].get('endpoint', 'http://localhost:8000/api/memory-bank')
+        self.add_path = self.config['args'].get('add_path', '/add')
+        self.search_path = self.config['args'].get('search_path', '/search')
+        self.default_limit = self.config['args'].get('limit', 10)
+        self.collections = self.config['args'].get('collections', 'memory_bank')
+        self.tags = self.config['args'].get('tags', [])
+        self.default_importance = self.config['args'].get('importance', 1.0)
+
+    def reset(self):
+        # No local state to clear; remote store owns persistence.
+        pass
+
+    def _build_url(self, path):
+        if self.endpoint.endswith('/') and path.startswith('/'):
+            return self.endpoint[:-1] + path
+        if not self.endpoint.endswith('/') and not path.startswith('/'):
+            return self.endpoint + '/' + path
+        return self.endpoint + path
+
+    def store(self, observation) -> None:
+        url = self._build_url(self.add_path)
+        payload = {
+            "text": observation,
+            "tags": self.tags,
+            "importance": self.default_importance,
+        }
+        try:
+            res = requests.post(url, json=payload, timeout=10)
+            res.raise_for_status()
+        except Exception as e:
+            logging.warning("RoampalMemory store failed: %s", e)
+
+    def _search(self, query, limit):
+        url = self._build_url(self.search_path)
+        params = {"q": query, "limit": limit, "collections": self.collections}
+        try:
+            res = requests.get(url, params=params, timeout=10)
+            res.raise_for_status()
+            data = res.json()
+            # Expect a list of items with a text field; be tolerant of shapes.
+            if isinstance(data, dict):
+                items = data.get('results') or data.get('data') or data.get('items') or []
+            else:
+                items = data
+            texts = []
+            for item in items:
+                if isinstance(item, dict):
+                    txt = item.get('text') or item.get('content') or ''
+                else:
+                    txt = str(item)
+                if txt:
+                    texts.append(txt)
+            return texts
+        except Exception as e:
+            logging.warning("RoampalMemory search failed: %s", e)
+            return []
+
+    def recall(self, observation) -> object:
+        hits = self._search(observation, self.default_limit)
+        memory_context = ''
+        for h in hits:
+            if get_word_num(memory_context + h) > self.config['args'].get('max_words', 4000):
+                break
+            memory_context += h + '\n'
+        return memory_context
+
+    def retri(self, observation) -> object:
+        hits = self._search(observation, self.default_limit)
+        memory_index = []
+        for h in hits:
+            try:
+                idx = int(str(h).split('[|]')[0])
+                memory_index.append(idx)
+            except Exception:
+                continue
+        return memory_index
+
+    def manage(self) -> None:
+        pass
+
     def train(self, **kwargs) -> None:
         pass
 

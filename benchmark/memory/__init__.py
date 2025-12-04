@@ -1,5 +1,5 @@
 from .BaseMemory import BaseMemory
-from .CommonMemory import FullMemory, MemoryBank, RetrievalMemory, RecentMemory, GAMemory, MGMemory, SCMemory, RFMemory
+from .CommonMemory import FullMemory, MemoryBank, RetrievalMemory, RecentMemory, GAMemory, MGMemory, SCMemory, RFMemory, RoampalMemory
 
 
 def create_memory_module(config):
@@ -19,5 +19,7 @@ def create_memory_module(config):
         return SCMemory(config)
     elif config['type'] == 'RFMemory':
         return RFMemory(config)
+    elif config['type'] == 'RoampalMemory':
+        return RoampalMemory(config)
     else:
         raise "This memory type has not been implemented."

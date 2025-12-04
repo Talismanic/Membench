@@ -6,13 +6,16 @@ def get_recall(res, std):
     if res == None:
         return 0
     # print(std)
-    res = list(set(res))
-    std_set = set(std)
-    ct = 0
-    for step_id in res:
-        if step_id in std:
-            ct += 1
-    return ct/len(std_set)
+    def normalize(x):
+        # target_step_id can be a list (e.g., [81, 7]); make it hashable
+        return tuple(x) if isinstance(x, list) else x
+
+    res_norm = {normalize(i) for i in res}
+    std_norm = {normalize(i) for i in std}
+    if not std_norm:
+        return 0
+    ct = sum(1 for step_id in res_norm if step_id in std_norm)
+    return ct/len(std_norm)
 
 
 class MemBenchEnv(BaseEnv):
@@ -33,9 +36,12 @@ class MemBenchEnv(BaseEnv):
         test_data = []
         for question_type, traj_list_all in all_data.items():
             if question_type in self.config['dataset_type']:
-                for _, traj_list in traj_list_all.items():
-                    for traj in traj_list:
-                        test_data.append(traj)
+                # Some datasets are dicts of scenarios, others are already a flat list
+                if isinstance(traj_list_all, list):
+                    test_data.extend(traj_list_all)
+                else:
+                    for _, traj_list in traj_list_all.items():
+                        test_data.extend(traj_list)
         return test_data
 
     def reset(self, traj_i):

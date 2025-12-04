@@ -1,7 +1,7 @@
-from memory import create_memory_module
+from benchmark.memory import create_memory_module
 # from BaseAgent import BaseAgent
 from benchutils import create_LLM
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 import logging
 import time
 import json
