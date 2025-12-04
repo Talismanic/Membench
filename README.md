@@ -53,6 +53,39 @@ MakeNoiseSession('data/FirstAgentDataLowLevel.json', 'data2test', length=10, sam
 MakeNoiseSession('data/FirstAgentDataHighLevel.json', 'data2test', length=10, sample_num=100)  ## Add noise to the first-person high-level
 ```
 
+## Easy Benchmarking with `run_mem_bench.py`
+
+This repository includes a `run_mem_bench.py` script to simplify the process of benchmarking different memory mechanisms.
+
+### Quick Start
+
+1.  **Install Dependencies**: Ensure you have the required packages installed (see `requirements.txt`).
+2.  **Configure**: Open `run_mem_bench.py` and adjust the `config` dictionary. You can select the dataset, LLM settings, and the memory configuration you want to test.
+3.  **Run**:
+    ```bash
+    python run_mem_bench.py
+    ```
+
+### Supported Memory Systems
+
+The benchmark supports various memory architectures, ranging from simple baselines to complex, agentic memory systems.
+
+*   **FullMemory**: Keeps the entire interaction history, truncating only when the context window is exceeded.
+*   **RecentMemory**: Retains only the most recent observations, simulating a sliding window context.
+*   **RetrievalMemory**: A standard RAG (Retrieval-Augmented Generation) system using vector embeddings (e.g., `multilingual-e5-small`) to retrieve relevant past information.
+*   **GAMemory**: Based on **Generative Agents**, incorporating recency, importance, and relevance scoring, along with a reflection mechanism to synthesize high-level insights.
+*   **MemoryBank**: Implements the **MemoryBank** architecture, utilizing an Ebbinghaus forgetting curve and hierarchical summarization (daily/global summaries).
+*   **MGMemory**: Inspired by **MemGPT**, featuring a tiered memory structure (Working Context, FIFO Queue, Recursive Summary) and tool-use for memory management (archival/recall).
+*   **SCMemory**: **Self-Controlled Memory**, where a "Controller" LLM dynamically decides when to retrieve or summarize information based on the query's needs.
+*   **RFMemory**: Based on **Reflexion**, allowing the agent to "reflect" on past execution trails to improve performance in subsequent attempts.
+
+### Roampal Integration
+
+We have introduced **RoampalMemory** to facilitate integration with [Roampal](https://github.com/roampal-ai/roampal), a dedicated memory-as-a-service solution.
+
+*   **RoampalMemory**: Offloads memory storage and retrieval to a running Roampal instance. This allows you to benchmark the performance of Roampal's decoupled memory management against other embedded memory mechanisms.
+    *   **Configuration**: Set the `endpoint` in `ROAMPAL_MEMORY_CONFIG` to point to your Roampal API (default: `http://localhost:8000/api/memory-bank`).
+
 
 
 
